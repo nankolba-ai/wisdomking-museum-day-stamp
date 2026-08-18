@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NST Science Fair 2026 - สะสม Stamp</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .stamp-card { transition: all 0.3s ease; }
+        .stamp-card.collected { border-color: #10B981; filter: grayscale(0%); }
+        .stamp-card.not-collected { filter: grayscale(100%); opacity: 0.4; }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen flex justify-center">
+    <div class="w-full max-w-md bg-white shadow-lg min-h-screen flex flex-col pb-10">
+        
+        <!-- Header Image / Banner -->
+        <div class="bg-blue-600 text-white p-6 text-center rounded-b-3xl shadow-md">
+            <h1 class="text-xl font-bold">NST FAIR 2026</h1>
+            <p class="text-sm opacity-90">INTELLIGENCE IN SCIENCE FOR A SUSTAINABLE FUTURE</p>
+        </div>
+
+        <!-- User Info & Progress Summary -->
+        <div class="mx-4 -mt-4 bg-white p-4 rounded-2xl shadow-lg border border-teal-100 text-center">
+            <p class="text-gray-700 font-semibold">Stamp สะสมของคุณ: <span id="stamp-count" class="text-teal-600 text-xl font-bold">0</span> Stamp</p>
+            <p class="text-sm text-gray-500">Stamp เหลืออีก: <span id="stamp-remaining" class="font-bold">9</span> Stamp</p>
+            
+            <button onclick="toggleModal('info-modal')" class="mt-3 w-full bg-blue-500 text-white text-sm py-2 rounded-lg hover:bg-blue-600 font-medium">
+                👁️ กรอกข้อมูลผู้เข้าร่วม / แบบประเมิน
+            </button>
+        </div>
+
+        <!-- Stamp Grid Section -->
+        <div class="p-4 flex-1">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-lg font-bold text-gray-800">สะสม Science Stamp</h2>
+                <button onclick="resetData()" class="text-xs text-gray-400 underline">รีเซ็ตข้อมูล</button>
+            </div>
+
+            <!-- Grid 9 Zones -->
+            <div id="stamp-grid" class="grid grid-cols-3 gap-3"></div>
+        </div>
+
+        <!-- Redeem Button -->
+        <div class="p-4">
+            <button id="redeem-btn" onclick="checkRedemption()" class="w-full bg-teal-500 text-white py-3 rounded-full text-lg font-bold shadow-md hover:bg-teal-600 flex items-center justify-center gap-2">
+                <span>📱</span> แสดง QR Code เพื่อรับของรางวัล
+            </button>
+        </div>
+    </div>
+
+    <!-- Modal: User Info & Evaluation -->
+    <div id="info-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-2xl p-6 w-full max-w-sm max-h-[90vh] overflow-y-auto">
+            <h3 class="text-lg font-bold mb-3 text-gray-800">ข้อมูลผู้เข้าร่วมกิจกรรม</h3>
+            
+            <div class="space-y-3">
+                <div>
+                    <label class="text-sm text-gray-600">ชื่อ-นามสกุล</label>
+                    <input type="text" id="user-name" class="w-full border rounded-lg p-2 text-sm" placeholder="กรอกชื่อของคุณ">
+                </div>
+                <div>
+                    <label class="text-sm text-gray-600">เบอร์โทรศัพท์</label>
+                    <input type="tel" id="user-phone" class="w-full border rounded-lg p-2 text-sm" placeholder="08X-XXX-XXXX">
+                </div>
+
+                <hr class="my-2">
+                <h4 class="font-bold text-sm text-gray-700">ประเมินความพึงพอใจแต่ละโซน</h4>
+                <div id="rating-container" class="space-y-2 text-xs"></div>
+            </div>
+
+            <button id="save-btn" onclick="saveUserInfo()" class="mt-4 w-full bg-teal-500 text-white py-2 rounded-lg font-bold flex justify-center items-center">
+                บันทึกข้อมูล
+            </button>
+        </div>
+    </div>
+
+    <!-- Modal: Reward Success -->
+    <div id="reward-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-2xl p-6 w-full max-w-sm text-center">
+            <div class="text-5xl mb-2">🎉</div>
+            <h3 class="text-xl font-bold text-gray-800">สะสมครบ 9 จุดแล้ว!</h3>
+            <p class="text-sm text-gray-600 mt-1">กรุณาแสดง QR Code นี้ให้เจ้าหน้าที่เพื่อรับของรางวัล</p>
+            
+            <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=REDEEMED_SUCCESS" class="mx-auto my-4 border p-2 rounded-lg">
+            
+            <button onclick="toggleModal('reward-modal')" class="w-full bg-gray-200 text-gray-800 py-2 rounded-lg font-bold">ปิด</button>
+        </div>
+    </div>
+
+    <script>
+        // Google Web App URL สำหรับส่งข้อมูลบันทึกลง Google Sheets
+        const GOOGLE_SHEET_URL = "https://script.google.com/macros/s/AKfycbynj11yNf-05FgSKv8OYlW8FR2XQimx1hUDypn24JSjbsBifzf8ZDIl59lWFgnehBcCUw/exec";
+
+        const ZONES = [
+            "ดอกไม้เปลี่ยนโลก", "ความลับของท้องทุ่ง", "นิทรรศการ AI",
+            "ตามล่าหาแร่", "ภารกิจวิทย์เพื่ออนาคต", "พลังงานสะอาด",
+            "อวกาศแห่งอนาคต", "นวัตกรรมอาหาร", "เทคโนโลยีชีวภาพ"
+        ];
+
+        let stamps = JSON.parse(localStorage.getItem('stamps')) || Array(9).fill(false);
+        let ratings = JSON.parse(localStorage.getItem('ratings')) || Array(9).fill(5);
+        let userInfo = JSON.parse(localStorage.getItem('user_info')) || { name: '', phone: '' };
+
+        // Check URL parameters for scanned zones (?scan=1 - 9)
+        const urlParams = new URLSearchParams(window.location.search);
+        const scannedZone = urlParams.get('scan');
+        if (scannedZone && scannedZone >= 1 && scannedZone <= 9) {
+            stamps[scannedZone - 1] = true;
+            localStorage.setItem('stamps', JSON.stringify(stamps));
+            window.history.replaceState({}, document.title, window.location.pathname);
+        }
+
+        function renderGrid() {
+            const grid = document.getElementById('stamp-grid');
+            grid.innerHTML = '';
+            
+            let collectedCount = 0;
+            ZONES.forEach((zone, index) => {
+                const isCollected = stamps[index];
+                if (isCollected) collectedCount++;
+
+                grid.innerHTML += `
+                    <div class="stamp-card ${isCollected ? 'collected' : 'not-collected'} border-2 border-dashed border-gray-300 rounded-full p-2 flex flex-col items-center justify-center text-center aspect-square bg-gray-50">
+                        <div class="w-12 h-12 rounded-full bg-teal-500 text-white flex items-center justify-center font-bold text-xs mb-1">
+                            ${isCollected ? '✔' : index + 1}
+                        </div>
+                        <span class="text-[10px] leading-tight font-medium text-gray-700">${zone}</span>
+                    </div>
+                `;
+            });
+
+            document.getElementById('stamp-count').innerText = collectedCount;
+            document.getElementById('stamp-remaining').innerText = 9 - collectedCount;
+        }
+
+        function renderRatings() {
+            const container = document.getElementById('rating-container');
+            container.innerHTML = '';
+            ZONES.forEach((zone, index) => {
+                container.innerHTML += `
+                    <div class="flex justify-between items-center">
+                        <span class="truncate w-1/2">${zone}:</span>
+                        <div class="text-amber-400 cursor-pointer">
+                            ${[1, 2, 3, 4, 5].map(star => `
+                                <span onclick="setRating(${index}, ${star})">${star <= ratings[index] ? '❤️' : '🤍'}</span>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            });
+
+            document.getElementById('user-name').value = userInfo.name || '';
+            document.getElementById('user-phone').value = userInfo.phone || '';
+        }
+
+        function setRating(zoneIndex, rating) {
+            ratings[zoneIndex] = rating;
+            localStorage.setItem('ratings', JSON.stringify(ratings));
+            renderRatings();
+        }
+
+        function toggleModal(id) {
+            const modal = document.getElementById(id);
+            modal.classList.toggle('hidden');
+        }
+
+        function checkRedemption() {
+            const collectedCount = stamps.filter(Boolean).length;
+            if (collectedCount === 9) {
+                toggleModal('reward-modal');
+            } else {
+                alert(`คุณยังสะสม Stamp ไม่ครบ (ขาดอีก ${9 - collectedCount} จุด)`);
+            }
+        }
+
+        async function saveUserInfo() {
+            const name = document.getElementById('user-name').value.trim();
+            const phone = document.getElementById('user-phone').value.trim();
+
+            if (!name || !phone) {
+                alert('กรุณากรอกชื่อและเบอร์โทรศัพท์ก่อนบันทึก');
+                return;
+            }
+
+            const saveBtn = document.getElementById('save-btn');
+            saveBtn.disabled = true;
+            saveBtn.innerText = 'กำลังบันทึก...';
+
+            userInfo = { name, phone };
+            localStorage.setItem('user_info', JSON.stringify(userInfo));
+
+            const payload = {
+                name: name,
+                phone: phone,
+                ratings: ratings
+            };
+
+            try {
+                await fetch(GOOGLE_SHEET_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                alert('บันทึกข้อมูลและแบบประเมินเรียบร้อยแล้ว!');
+                toggleModal('info-modal');
+            } catch (error) {
+                alert('เกิดข้อผิดพลาดในการส่งข้อมูลไปยัง Google Sheets');
+                console.error('Error:', error);
+            } finally {
+                saveBtn.disabled = false;
+                saveBtn.innerText = 'บันทึกข้อมูล';
+            }
+        }
+
+        function resetData() {
+            if (confirm('ต้องการรีเซ็ตข้อมูลการสะสมตราประทับทั้งหมดหรือไม่?')) {
+                localStorage.clear();
+                stamps = Array(9).fill(false);
+                ratings = Array(9).fill(5);
+                userInfo = { name: '', phone: '' };
+                renderGrid();
+                renderRatings();
+            }
+        }
+
+        // Init
+        renderGrid();
+        renderRatings();
+    </script>
+</body>
+</html>
