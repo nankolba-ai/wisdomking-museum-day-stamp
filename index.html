@@ -3,21 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NST Science Fair 2026 - สะสม Stamp</title>
+    <title>พิพิธภัณฑ์การเกษตรเฉลิมพระเกียรติฯ - สะสม Stamp</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         .stamp-card { transition: all 0.3s ease; }
-        .stamp-card.collected { border-color: #10B981; filter: grayscale(0%); }
+        .stamp-card.collected { border-color: #10B981; opacity: 1; filter: grayscale(0%); }
         .stamp-card.not-collected { filter: grayscale(100%); opacity: 0.4; }
     </style>
 </head>
 <body class="bg-gray-100 min-h-screen flex justify-center">
     <div class="w-full max-w-md bg-white shadow-lg min-h-screen flex flex-col pb-10">
         
-        <!-- Header Image / Banner -->
-        <div class="bg-blue-600 text-white p-6 text-center rounded-b-3xl shadow-md">
-            <h1 class="text-xl font-bold">NST FAIR 2026</h1>
-            <p class="text-sm opacity-90">INTELLIGENCE IN SCIENCE FOR A SUSTAINABLE FUTURE</p>
+        <!-- ======================================================= -->
+        <!-- 1. ส่วนหัวเว็บ (HEADER) - แก้ไขข้อความ/รูปภาพ Banner ได้ตรงนี้ -->
+        <!-- ======================================================= -->
+        <div class="bg-teal-700 text-white p-6 text-center rounded-b-3xl shadow-md">
+            <!-- หากต้องการใส่ภาพ Banner ขนาดใหญ่ ให้ลบหรือใส่ลิงก์รูปตรง src ข้างล่างนี้ -->
+            <!-- <img src=" https://www.wisdomking.or.th/backend/uploads/content_53_7370/2025_07/1752317186_179.JPG
+" class="w-full h-auto mb-2 rounded-xl"> -->
+            <h1 class="text-xl font-bold">WISDOMKING MUSEUM DAY 2026</h1>
+            <p class="text-sm opacity-90">พิพิธภัณฑ์การเกษตรเฉลิมพระเกียรติฯ</p>
         </div>
 
         <!-- User Info & Progress Summary -->
@@ -33,7 +38,7 @@
         <!-- Stamp Grid Section -->
         <div class="p-4 flex-1">
             <div class="flex justify-between items-center mb-4">
-                <h2 class="text-lg font-bold text-gray-800">สะสม Science Stamp</h2>
+                <h2 class="text-lg font-bold text-gray-800">สะสมตราประทับ</h2>
                 <button onclick="resetData()" class="text-xs text-gray-400 underline">รีเซ็ตข้อมูล</button>
             </div>
 
@@ -89,13 +94,21 @@
     </div>
 
     <script>
-        // Google Web App URL สำหรับส่งข้อมูลบันทึกลง Google Sheets
         const GOOGLE_SHEET_URL = "https://script.google.com/macros/s/AKfycbynj11yNf-05FgSKv8OYlW8FR2XQimx1hUDypn24JSjbsBifzf8ZDIl59lWFgnehBcCUw/exec";
 
+        // =======================================================
+        // 2. รายชื่อโซน และรูปภาพของแต่ละโซน (ใส่ URL รูปภาพตรง img)
+        // =======================================================
         const ZONES = [
-            "ดอกไม้เปลี่ยนโลก", "ความลับของท้องทุ่ง", "นิทรรศการ AI",
-            "ตามล่าหาแร่", "ภารกิจวิทย์เพื่ออนาคต", "พลังงานสะอาด",
-            "อวกาศแห่งอนาคต", "นวัตกรรมอาหาร", "เทคโนโลยีชีวภาพ"
+            { name: "โซนที่ 1 ตามรอยพ่ออยู่อย่างพอเพียง ", img: " https://app.wisdomking.or.th/Backend/flmngr/uploads/files/b5-05.jpg " },
+            { name: "โซนที่ 2 รถสมเด็จย่า", img: "https://postimg.cc/KKkRkfzL" },
+            { name: "โซนที่ 3 วิถีเกษตรของพ่อ", img: "https://postimg.cc/7CFbgzGs" },
+            { name: "โซนที่ 4 น้ำคือชีวิต", img: "https://postimg.cc/sBQvQmXY " },
+            { name: "โซนที่ 5 วิถีเกษตรลุ่มน้ำ", img: "https://postimg.cc/gwXnXsJh " },
+            { name: "โซนที่ 6 ตลาดเงินทวี", img: "https://postimg.cc/18TDjfV6" },
+            { name: "โซนที่ 7 นวัตกรรมเกษตรเศรษฐกิจพอเพียง", img: " https://app.wisdomking.or.th/backend/uploads/static/1752326221_191_b5-7.jpg " },
+            { name: "โซนที่ 8 ฐานต้นไม้แห่งการเรียนรู้ (นอกอาคาร) ", img: " https://postimg.cc/Z9BCBHRF" },
+            { name: "โซนที่ 9 เกษตรคือชีวิต (อาคาร 9) ", img: " https://postimg.cc/tnHZH691" }
         ];
 
         let stamps = JSON.parse(localStorage.getItem('stamps')) || Array(9).fill(false);
@@ -121,11 +134,10 @@
                 if (isCollected) collectedCount++;
 
                 grid.innerHTML += `
-                    <div class="stamp-card ${isCollected ? 'collected' : 'not-collected'} border-2 border-dashed border-gray-300 rounded-full p-2 flex flex-col items-center justify-center text-center aspect-square bg-gray-50">
-                        <div class="w-12 h-12 rounded-full bg-teal-500 text-white flex items-center justify-center font-bold text-xs mb-1">
-                            ${isCollected ? '✔' : index + 1}
-                        </div>
-                        <span class="text-[10px] leading-tight font-medium text-gray-700">${zone}</span>
+                    <div class="stamp-card ${isCollected ? 'collected' : 'not-collected'} border-2 border-teal-500 rounded-2xl p-2 flex flex-col items-center justify-center text-center aspect-square bg-gray-50 relative overflow-hidden shadow-sm">
+                        <img src="${zone.img}" class="w-12 h-12 rounded-full object-cover mb-1 border">
+                        <span class="text-[10px] leading-tight font-medium text-gray-700">${zone.name}</span>
+                        ${isCollected ? '<div class="absolute inset-0 bg-teal-500 bg-opacity-20 flex items-center justify-center text-teal-700 font-bold text-2xl">✔</div>' : ''}
                     </div>
                 `;
             });
@@ -140,7 +152,7 @@
             ZONES.forEach((zone, index) => {
                 container.innerHTML += `
                     <div class="flex justify-between items-center">
-                        <span class="truncate w-1/2">${zone}:</span>
+                        <span class="truncate w-1/2">${zone.name}:</span>
                         <div class="text-amber-400 cursor-pointer">
                             ${[1, 2, 3, 4, 5].map(star => `
                                 <span onclick="setRating(${index}, ${star})">${star <= ratings[index] ? '❤️' : '🤍'}</span>
