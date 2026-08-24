@@ -5,21 +5,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>พิพิธภัณฑ์การเกษตรเฉลิมพระเกียรติฯ - สะสม Stamp</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- ไลบรารีสำหรับแสดงเอฟเฟกต์พลุ (Confetti) -->
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Kanit:wght@400;600;700&display=swap');
         body {
             font-family: 'Kanit', sans-serif;
-            background: linear-gradient(135deg, #a8edd8 0%, #h8e5ff 100%);
+            background: linear-gradient(135deg, #0F172A 0%, #1E293B 50%, #0F2042 100%);
             background-attachment: fixed;
+            color: #f8fafc;
         }
-        /* ตกแต่งการ์ดแสตมป์ให้ออกแนว Stamp Sticker ขอบรอยปรุ */
+        /* ตกแต่งการ์ดแสตมป์แนว Passport Sticker ขอบรอยปรุ */
         .stamp-sticker {
-            background-color: #fff;
-            border: 4px dashed #f472b6;
-            border-radius: 16px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+            background-color: #ffffff;
+            border: 3px dashed #94a3b8;
+            border-radius: 18px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
             transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             position: relative;
         }
@@ -28,52 +28,50 @@
             border-color: #38bdf8;
             opacity: 1;
             filter: grayscale(0%);
-            transform: scale(1.02);
+            transform: scale(1.03);
+            box-shadow: 0 6px 16px rgba(56, 189, 248, 0.3);
         }
         .stamp-sticker.not-collected {
             filter: grayscale(100%);
-            opacity: 0.5;
+            opacity: 0.45;
         }
     </style>
 </head>
 <body class="min-h-screen flex justify-center items-center p-0 sm:p-4">
 
-    <div class="w-full max-w-md bg-pink-50/80 backdrop-blur-md shadow-2xl min-h-screen sm:min-h-0 sm:rounded-3xl flex flex-col overflow-hidden border-4 border-white">
+    <div class="w-full max-w-md bg-slate-900/90 backdrop-blur-md shadow-2xl min-h-screen sm:min-h-0 sm:rounded-3xl flex flex-col overflow-hidden border-2 border-slate-700">
         
-        <!-- HEADER ZONE -->
-        <div class="bg-gradient-to-r from-sky-400 via-pink-400 to-amber-300 text-white p-6 text-center rounded-b-3xl shadow-md relative">
-            <div class="absolute inset-0 bg-white/10 backdrop-blur-[1px]"></div>
+        <!-- HEADER ZONE (ธีม Navy Gold แบบ Passport) -->
+        <div class="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white p-6 text-center border-b border-amber-500/30 relative">
             <div class="relative z-10">
-                <span class="bg-white/30 text-xs px-3 py-1 rounded-full uppercase tracking-wider font-bold text-white shadow-sm">THAI MUSEUM DAY 2026</span>
-                <h1 class="text-2xl font-bold mt-1 text-white drop-shadow">Wisdomking Museum Stamp Collection</h1>
-                <p class="text-xs opacity-90 font-medium">พิพิธภัณฑ์การเกษตรเฉลิมพระเกียรติฯ</p>
+                <span class="bg-amber-500/20 text-amber-300 border border-amber-500/40 text-[10px] px-3 py-1 rounded-full uppercase tracking-widest font-bold shadow-sm">
+                    THAI MUSEUM DAY 2026
+                </span>
+                <h1 class="text-2xl font-bold mt-2 text-amber-400 drop-shadow tracking-wide">Wisdomking Museum Passport</h1>
+                <p class="text-xs text-slate-300 font-medium">สำนักงานพิพิธภัณฑ์การเกษตรเฉลิมพระเกียรติฯ</p>
             </div>
         </div>
 
-        <!-- User Info & Progress Summary -->
-        <div class="mx-4 -mt-4 z-20 bg-white/90 p-4 rounded-2xl shadow-lg border-2 border-pink-200 text-center">
-            <div class="flex justify-around items-center mb-2">
+        <!-- User Progress Summary -->
+        <div class="mx-4 -mt-3 z-20 bg-slate-800/90 p-4 rounded-2xl shadow-xl border border-slate-700 text-center backdrop-blur-md">
+            <div class="flex justify-around items-center">
                 <div>
-                    <p class="text-xs text-gray-500 font-semibold">Stamp สะสม</p>
-                    <p class="text-2xl font-extrabold text-sky-500"><span id="stamp-count">0</span> / 9</p>
+                    <p class="text-xs text-slate-400 font-semibold">Stamp สะสม</p>
+                    <p class="text-3xl font-extrabold text-amber-400"><span id="stamp-count">0</span> <span class="text-sm font-normal text-slate-400">/ 9</span></p>
                 </div>
-                <div class="h-8 w-px bg-pink-200"></div>
+                <div class="h-10 w-px bg-slate-700"></div>
                 <div>
-                    <p class="text-xs text-gray-500 font-semibold">ขาดอีก</p>
-                    <p class="text-2xl font-extrabold text-pink-500"><span id="stamp-remaining">9</span> <span class="text-xs">จุด</span></p>
+                    <p class="text-xs text-slate-400 font-semibold">สิทธิ์แลกรางวัล</p>
+                    <p id="reward-status-text" class="text-sm font-bold text-sky-400 mt-1">ยังไม่ถึงเกณฑ์</p>
                 </div>
             </div>
-            
-            <button onclick="toggleModal('info-modal')" class="mt-2 w-full bg-gradient-to-r from-amber-400 to-amber-500 text-white text-sm py-2.5 rounded-xl hover:opacity-90 font-bold shadow-md transition transform active:scale-95 flex items-center justify-center gap-1">
-                📝 กรอกข้อมูลผู้เข้าร่วมกิจกรรม
-            </button>
         </div>
 
         <!-- Stamp Grid Section -->
         <div class="p-4 flex-1">
             <div class="flex justify-between items-center mb-3">
-                <h2 class="text-md font-bold text-gray-700 flex items-center gap-1">🌸 สะสมตราประทับของคุณ</h2>
-                <button id="reset-btn" onclick="resetData()" class="text-xs text-pink-400 hover:text-pink-600 underline font-medium">รีเซ็ตข้อมูล</button>
+                <h2 class="text-sm font-bold text-amber-300 flex items-center gap-1">📖 ตราประทับของคุณ</h2>
+                <button id="reset-btn" onclick="resetData()" class="text-xs text-slate-400 hover:text-rose-400 underline font-medium">รีเซ็ตข้อมูล</button>
             </div>
 
             <!-- Grid 9 Zones -->
@@ -81,32 +79,33 @@
         </div>
 
         <!-- Redeem Button -->
-        <div class="p-4">
-            <button id="redeem-btn" onclick="checkRedemption()" class="w-full bg-gradient-to-r from-sky-400 via-pink-400 to-amber-400 text-white py-3.5 rounded-2xl text-lg font-bold shadow-lg hover:brightness-105 flex items-center justify-center gap-2 transition transform active:scale-98">
-                🎁 แสดง QR Code เพื่อรับของรางวัล
+        <div class="p-4 border-t border-slate-800 bg-slate-950/50">
+            <button id="redeem-btn" onclick="handleRedeemClick()" class="w-full bg-gradient-to-r from-amber-500 via-amber-600 to-yellow-500 text-slate-950 py-3.5 rounded-2xl text-base font-bold shadow-lg hover:brightness-110 flex items-center justify-center gap-2 transition transform active:scale-98">
+                🎁 กดรับของรางวัล
             </button>
         </div>
     </div>
 
-    <!-- Modal: User Info & Evaluation -->
-    <div id="info-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
-        <div class="bg-white rounded-3xl p-6 w-full max-w-sm max-h-[90vh] overflow-y-auto border-4 border-pink-200 shadow-2xl">
-            <h3 class="text-lg font-bold mb-4 text-pink-600 text-center">📝 ข้อมูลผู้เข้าร่วมกิจกรรม</h3>
+    <!-- Modal: Questionnaire & Evaluation (ข้อ 1 & ข้อ 2) -->
+    <div id="info-modal" class="fixed inset-0 bg-black/80 backdrop-blur-md hidden flex items-center justify-center p-4 z-50">
+        <div class="bg-slate-900 text-slate-100 rounded-3xl p-6 w-full max-w-lg max-h-[90vh] overflow-y-auto border-2 border-amber-500/40 shadow-2xl">
+            <h3 class="text-xl font-bold mb-1 text-amber-400 text-center">📝 แบบสอบถามความพึงพอใจ</h3>
+            <p class="text-xs text-slate-400 text-center mb-5">กรุณากรอกข้อมูลและทำแบบประเมินเพื่อรับของรางวัล</p>
             
-            <div class="space-y-3">
+            <div class="space-y-4">
                 <div>
-                    <label class="text-xs font-bold text-gray-600 block mb-1">1. ชื่อ - นามสกุล *</label>
-                    <input type="text" id="user-name" class="w-full border-2 border-pink-100 rounded-xl p-2.5 text-sm focus:border-pink-400 outline-none" placeholder="กรอกชื่อ-นามสกุล">
+                    <label class="text-xs font-bold text-slate-300 block mb-1">1. ชื่อ - นามสกุล *</label>
+                    <input type="text" id="user-name" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-3 text-sm focus:border-amber-400 outline-none text-white" placeholder="กรอกชื่อ-นามสกุล">
                 </div>
 
                 <div>
-                    <label class="text-xs font-bold text-gray-600 block mb-1">2. ที่อยู่ปัจจุบัน *</label>
-                    <textarea id="user-address" rows="2" class="w-full border-2 border-pink-100 rounded-xl p-2.5 text-sm focus:border-pink-400 outline-none" placeholder="กรอกที่อยู่ปัจจุบัน"></textarea>
+                    <label class="text-xs font-bold text-slate-300 block mb-1">2. ที่อยู่ปัจจุบัน *</label>
+                    <textarea id="user-address" rows="2" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-3 text-sm focus:border-amber-400 outline-none text-white" placeholder="กรอกที่อยู่ปัจจุบัน"></textarea>
                 </div>
 
                 <div>
-                    <label class="text-xs font-bold text-gray-600 block mb-1">3. มาเที่ยวพิพิธภัณฑ์การเกษตรฯ กี่ครั้งแล้ว *</label>
-                    <select id="user-visits" class="w-full border-2 border-pink-100 rounded-xl p-2.5 text-sm focus:border-pink-400 outline-none bg-white">
+                    <label class="text-xs font-bold text-slate-300 block mb-1">3. มาเที่ยวพิพิธภัณฑ์การเกษตรฯ กี่ครั้งแล้ว *</label>
+                    <select id="user-visits" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-3 text-sm focus:border-amber-400 outline-none text-white">
                         <option value="">-- เลือกจำนวนครั้ง --</option>
                         <option value="1 ครั้ง (มาครั้งแรก)">1 ครั้ง (มาครั้งแรก)</option>
                         <option value="2-3 ครั้ง">2-3 ครั้ง</option>
@@ -116,46 +115,45 @@
                 </div>
 
                 <div>
-                    <label class="text-xs font-bold text-gray-600 block mb-1">4. เหตุผลที่มาพิพิธภัณฑ์การเกษตรฯ *</label>
-                    <input type="text" id="user-reason" class="w-full border-2 border-pink-100 rounded-xl p-2.5 text-sm focus:border-pink-400 outline-none" placeholder="เช่น ท่องเที่ยวพักผ่อน, พาลูกมาเรียนรู้">
+                    <label class="text-xs font-bold text-slate-300 block mb-1">4. เหตุผลที่มาพิพิธภัณฑ์การเกษตรฯ *</label>
+                    <input type="text" id="user-reason" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-3 text-sm focus:border-amber-400 outline-none text-white" placeholder="เช่น ท่องเที่ยวพักผ่อน, พาลูกมาเรียนรู้">
                 </div>
 
                 <div>
-                    <label class="text-xs font-bold text-gray-600 block mb-1">5. ข้อเสนอแนะเพิ่มเติม</label>
-                    <textarea id="user-suggestions" rows="2" class="w-full border-2 border-pink-100 rounded-xl p-2.5 text-sm focus:border-pink-400 outline-none" placeholder="ข้อเสนอแนะเพิ่มเติม (ถ้ามี)"></textarea>
+                    <label class="text-xs font-bold text-slate-300 block mb-1">5. ข้อเสนอแนะเพิ่มเติม</label>
+                    <textarea id="user-suggestions" rows="2" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-3 text-sm focus:border-amber-400 outline-none text-white" placeholder="ข้อเสนอแนะเพิ่มเติม (ถ้ามี)"></textarea>
                 </div>
 
-                <hr class="my-3 border-pink-100">
-                <h4 class="font-bold text-xs text-gray-700">ประเมินความพึงพอใจแต่ละโซน</h4>
-                <div id="rating-container" class="space-y-2 text-xs"></div>
+                <hr class="my-4 border-slate-800">
+                <h4 class="font-bold text-sm text-amber-300 mb-2">ประเมินความพึงพอใจแต่ละโซน</h4>
+                <div id="rating-container" class="space-y-2"></div>
             </div>
 
-            <div class="flex gap-2 mt-5">
-                <button onclick="toggleModal('info-modal')" class="w-1/3 bg-gray-200 text-gray-600 py-2.5 rounded-xl font-bold text-sm">ยกเลิก</button>
-                <button id="save-btn" onclick="saveUserInfo()" class="w-2/3 bg-pink-500 text-white py-2.5 rounded-xl font-bold text-sm hover:bg-pink-600 shadow-md">
-                    บันทึกข้อมูล
+            <div class="flex gap-3 mt-6">
+                <button onclick="toggleModal('info-modal')" class="w-1/3 bg-slate-800 hover:bg-slate-700 text-slate-300 py-3 rounded-xl font-bold text-sm border border-slate-700">ยกเลิก</button>
+                <button id="save-btn" onclick="saveUserInfoAndShowReward()" class="w-2/3 bg-gradient-to-r from-amber-500 to-amber-600 text-slate-950 py-3 rounded-xl font-bold text-sm hover:brightness-110 shadow-lg">
+                    เสร็จสิ้นเพื่อรับรางวัล
                 </button>
             </div>
         </div>
     </div>
 
     <!-- Modal: Reward Success -->
-    <div id="reward-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
-        <div class="bg-white rounded-3xl p-6 w-full max-w-sm text-center border-4 border-sky-200 shadow-2xl relative">
+    <div id="reward-modal" class="fixed inset-0 bg-black/80 backdrop-blur-md hidden flex items-center justify-center p-4 z-50">
+        <div class="bg-slate-900 border-2 border-amber-400/50 rounded-3xl p-6 w-full max-w-sm text-center shadow-2xl relative">
             <div class="text-6xl mb-2 animate-bounce">🎉</div>
-            <h3 class="text-xl font-bold text-sky-600">สะสมครบ 9 จุดแล้ว!</h3>
-            <p class="text-xs text-gray-500 mt-1">กรุณาแสดง QR Code นี้ให้เจ้าหน้าที่เพื่อรับของรางวัล</p>
+            <h3 id="reward-title" class="text-xl font-bold text-amber-400">สะสมครบแลกรับรางวัล!</h3>
+            <p id="reward-desc" class="text-xs text-slate-300 mt-1 mb-3">กรุณาแสดง QR Code นี้ให้เจ้าหน้าที่เพื่อรับของรางวัล</p>
             
-            <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=REDEEMED_SUCCESS" class="mx-auto my-4 border-4 border-dashed border-sky-300 p-2 rounded-2xl bg-sky-50">
+            <img id="qr-image" src="" class="mx-auto my-3 border-4 border-dashed border-amber-400/50 p-2 rounded-2xl bg-white">
             
-            <button onclick="confirmRedeem()" class="w-full bg-gradient-to-r from-pink-400 to-sky-400 text-white py-3 rounded-xl font-bold shadow-md hover:opacity-90">
+            <button onclick="confirmRedeem()" class="w-full bg-gradient-to-r from-amber-500 to-amber-600 text-slate-950 py-3 rounded-xl font-bold shadow-md hover:brightness-110 mt-2">
                 ยืนยันการรับของรางวัล (เจ้าหน้าที่กด)
             </button>
         </div>
     </div>
 
     <script>
-        // อัปเดต URL เป็นรายการใช้งานจริง (/exec) ตัวล่าสุดเรียบร้อยแล้ว
         const GOOGLE_SHEET_URL = "https://script.google.com/macros/s/AKfycbyXMBm4pqhePp4qIJNnQWueBZiElBLkw0D8LfWPpoikj0QdRSBFCPP62-ZATbXMU7SFWQ/exec";
 
         const ZONES = [
@@ -170,57 +168,30 @@
             { name: "โซนที่ 9 เกษตรคือชีวิต", img: "https://i.postimg.cc/XqrwdKhg/IMG-3620.jpg" }
         ];
 
+        // ตรวจสอบระบบเล่นซ้ำวันถัดไป (ข้อ 3)
+        const todayStr = new Date().toISOString().split('T')[0];
+        let lastPlayedDate = localStorage.getItem('last_played_date');
+
+        if (lastPlayedDate !== todayStr) {
+            localStorage.removeItem('stamps');
+            localStorage.removeItem('ratings');
+            localStorage.removeItem('user_info');
+            localStorage.removeItem('is_redeemed');
+            localStorage.setItem('last_played_date', todayStr);
+        }
+
         let stamps = JSON.parse(localStorage.getItem('stamps')) || Array(9).fill(false);
-        let ratings = JSON.parse(localStorage.getItem('ratings')) || Array(9).fill(5);
+        let ratings = JSON.parse(localStorage.getItem('ratings')) || Array(9).fill(1); // 1 = พึงพอใจ (❤️), 0 = ไม่พึงพอใจ (🩶)
         let userInfo = JSON.parse(localStorage.getItem('user_info')) || { name: '', address: '', visits: '', reason: '', suggestions: '' };
         let isRedeemed = JSON.parse(localStorage.getItem('is_redeemed')) || false;
 
-        // ระบบเสียงเชียร์ "เฮ้!"
-        function playCheerSound() {
-            try {
-                const AudioContext = window.AudioContext || window.webkitAudioContext;
-                if (!AudioContext) return;
-                const ctx = new AudioContext();
-
-                const bufferSize = ctx.sampleRate * 1.2;
-                const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
-                const data = buffer.getChannelData(0);
-                for (let i = 0; i < bufferSize; i++) {
-                    data[i] = Math.random() * 2 - 1;
-                }
-
-                const noise = ctx.createBufferSource();
-                noise.buffer = buffer;
-
-                const filter = ctx.createBiquadFilter();
-                filter.type = 'bandpass';
-                filter.frequency.value = 800;
-                filter.Q.value = 3;
-
-                const gain = ctx.createGain();
-                gain.gain.setValueAtTime(0, ctx.currentTime);
-                gain.gain.linearRampToValueAtTime(0.5, ctx.currentTime + 0.1);
-                gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 1.2);
-
-                noise.connect(filter);
-                filter.connect(gain);
-                gain.connect(ctx.destination);
-
-                noise.start();
-            } catch (e) {
-                console.log("Audio deferred:", e);
-            }
-        }
-
-        // เอฟเฟกต์พลุ
         function triggerFireworks() {
             confetti({
                 particleCount: 100,
                 spread: 70,
                 origin: { y: 0.6 },
-                colors: ['#f472b6', '#38bdf8', '#fbbf24', '#a7f3d0']
+                colors: ['#f59e0b', '#38bdf8', '#ef4444', '#10b981']
             });
-            playCheerSound();
         }
 
         // ตรวจสอบ URL params เมื่อสแกน QR Code
@@ -228,15 +199,13 @@
         const scannedZone = urlParams.get('scan');
         if (scannedZone && scannedZone >= 1 && scannedZone <= 9) {
             if (isRedeemed) {
-                alert('คุณได้ทำการรับของรางวัลไปเรียบร้อยแล้ว ไม่สามารถสแกนสะสมเพิ่มได้อีก');
+                alert('คุณได้ทำการรับของรางวัลประจำวันนี้ไปเรียบร้อยแล้ว');
             } else {
                 const index = scannedZone - 1;
                 if (!stamps[index]) {
                     stamps[index] = true;
                     localStorage.setItem('stamps', JSON.stringify(stamps));
-                    setTimeout(() => {
-                        triggerFireworks();
-                    }, 500);
+                    setTimeout(() => triggerFireworks(), 500);
                 }
             }
             window.history.replaceState({}, document.title, window.location.pathname);
@@ -246,42 +215,62 @@
             const grid = document.getElementById('stamp-grid');
             grid.innerHTML = '';
             
-            let collectedCount = 0;
+            let collectedCount = stamps.filter(Boolean).length;
+
             ZONES.forEach((zone, index) => {
                 const isCollected = stamps[index];
-                if (isCollected) collectedCount++;
 
+                // ขยายขนาดภาพในตราประทับให้ใหญ่ขึ้น (ข้อ 4) -> w-16 h-16
                 grid.innerHTML += `
                     <div class="stamp-sticker ${isCollected ? 'collected' : 'not-collected'} p-2 flex flex-col items-center justify-center text-center aspect-square">
-                        <img src="${zone.img}" class="w-12 h-12 rounded-full object-cover mb-1 border-2 border-pink-200 shadow-sm">
-                        <span class="text-[9px] leading-tight font-bold text-gray-600 line-clamp-2">${zone.name}</span>
-                        ${isCollected ? '<div class="absolute inset-0 bg-sky-400/20 rounded-xl flex items-center justify-center text-sky-600 font-extrabold text-3xl drop-shadow">🌸</div>' : ''}
+                        <img src="${zone.img}" class="w-16 h-16 rounded-full object-cover mb-1 border-2 border-amber-400 shadow-sm">
+                        <span class="text-[9px] leading-tight font-bold text-slate-800 line-clamp-2">${zone.name}</span>
+                        ${isCollected ? '<div class="absolute inset-0 bg-sky-500/20 rounded-2xl flex items-center justify-center text-sky-600 font-extrabold text-3xl drop-shadow">💮</div>' : ''}
                     </div>
                 `;
             });
 
             document.getElementById('stamp-count').innerText = collectedCount;
-            document.getElementById('stamp-remaining').innerText = 9 - collectedCount;
+            
+            // แสดงสถานะสิทธิ์รับของรางวัล (ข้อ 5)
+            const statusText = document.getElementById('reward-status-text');
+            if (isRedeemed) {
+                statusText.innerText = "รับรางวัลแล้ว";
+                statusText.className = "text-sm font-bold text-slate-400";
+            } else if (collectedCount >= 9) {
+                statusText.innerText = "รับสมุด Passport 📘";
+                statusText.className = "text-sm font-bold text-amber-400 animate-pulse";
+            } else if (collectedCount >= 6) {
+                statusText.innerText = "รับสติ๊กเกอร์ 🎨";
+                statusText.className = "text-sm font-bold text-emerald-400";
+            } else {
+                statusText.innerText = `ขาดอีก ${6 - collectedCount} จุด`;
+                statusText.className = "text-sm font-bold text-sky-400";
+            }
 
             if (isRedeemed) {
                 const redeemBtn = document.getElementById('redeem-btn');
-                redeemBtn.innerText = "🔒 รับของรางวัลไปแล้ว";
-                redeemBtn.classList.remove('from-sky-400', 'via-pink-400', 'to-amber-400');
-                redeemBtn.classList.add('bg-gray-400');
+                redeemBtn.innerText = "🔒 รับของรางวัลประจำวันนี้แล้ว";
+                redeemBtn.className = "w-full bg-slate-800 text-slate-500 py-3.5 rounded-2xl text-base font-bold cursor-not-allowed";
             }
         }
 
+        // หน้าประเมินความพึงพอใจ แสดงรูปหัวใจ (ข้อ 2)
         function renderRatings() {
             const container = document.getElementById('rating-container');
             container.innerHTML = '';
             ZONES.forEach((zone, index) => {
+                const isSatisfied = ratings[index] === 1;
                 container.innerHTML += `
-                    <div class="flex justify-between items-center bg-pink-50 p-1.5 rounded-lg">
-                        <span class="truncate w-1/2 font-medium text-gray-600">${zone.name}:</span>
-                        <div class="text-amber-400 cursor-pointer">
-                            ${[1, 2, 3, 4, 5].map(star => `
-                                <span onclick="setRating(${index}, ${star})">${star <= ratings[index] ? '🌸' : '🤍'}</span>
-                            `).join('')}
+                    <div class="flex justify-between items-center bg-slate-800/80 p-2.5 rounded-xl border border-slate-700">
+                        <span class="truncate w-2/3 font-medium text-xs text-slate-200">${zone.name}</span>
+                        <div class="flex items-center gap-2 cursor-pointer" onclick="toggleRating(${index})">
+                            <span class="text-2xl transition transform active:scale-125 select-none">
+                                ${isSatisfied ? '❤️' : '🩶'}
+                            </span>
+                            <span class="text-xs ${isSatisfied ? 'text-rose-400 font-bold' : 'text-slate-400'}">
+                                ${isSatisfied ? 'พึงพอใจ' : 'ไม่พึงพอใจ'}
+                            </span>
                         </div>
                     </div>
                 `;
@@ -294,8 +283,8 @@
             document.getElementById('user-suggestions').value = userInfo.suggestions || '';
         }
 
-        function setRating(zoneIndex, rating) {
-            ratings[zoneIndex] = rating;
+        function toggleRating(zoneIndex) {
+            ratings[zoneIndex] = ratings[zoneIndex] === 1 ? 0 : 1;
             localStorage.setItem('ratings', JSON.stringify(ratings));
             renderRatings();
         }
@@ -305,32 +294,26 @@
             modal.classList.toggle('hidden');
         }
 
-        function checkRedemption() {
+        // กดรับของรางวัล -> ตรวจสอบเงื่อนไขสะสมครบ 6 หรือ 9 จุด (ข้อ 1 & ข้อ 5)
+        function handleRedeemClick() {
             if (isRedeemed) {
-                alert('คุณรับของรางวัลไปแล้ว ไม่สามารถรับของรางวัลซ้ำได้อีก');
+                alert('คุณรับของรางวัลประจำวันนี้ไปแล้ว สามารถเล่นใหม่ได้ในวันถัดไป');
                 return;
             }
 
             const collectedCount = stamps.filter(Boolean).length;
-            if (collectedCount === 9) {
-                toggleModal('reward-modal');
-                triggerFireworks();
-            } else {
-                alert(`คุณยังสะสม Stamp ไม่ครบ (ขาดอีก ${9 - collectedCount} จุด)`);
+            if (collectedCount < 6) {
+                alert(`คุณต้องสะสมตราประทับอย่างน้อย 6 จุดเพื่อรับรางวัล (ปัจจุบันสะสมได้ ${collectedCount} จุด)`);
+                return;
             }
+
+            // เปิดหน้าแบบสอบถามก่อนรับของรางวัล (ข้อ 1)
+            renderRatings();
+            toggleModal('info-modal');
         }
 
-        function confirmRedeem() {
-            if (confirm('ยืนยันว่าทำการรับของรางวัลเรียบร้อยแล้วใช่หรือไม่? (จะไม่สามารถรีเซ็ตหรือเล่นใหม่ได้อีก)')) {
-                isRedeemed = true;
-                localStorage.setItem('is_redeemed', JSON.stringify(true));
-                toggleModal('reward-modal');
-                renderGrid();
-                alert('บันทึกการรับของรางวัลสำเร็จ!');
-            }
-        }
-
-        async function saveUserInfo() {
+        // บันทึกข้อมูลแบบสอบถามแล้วแสดง QR Code
+        async function saveUserInfoAndShowReward() {
             const name = document.getElementById('user-name').value.trim();
             const address = document.getElementById('user-address').value.trim();
             const visits = document.getElementById('user-visits').value;
@@ -338,13 +321,13 @@
             const suggestions = document.getElementById('user-suggestions').value.trim();
 
             if (!name || !address || !visits || !reason) {
-                alert('กรุณากรอกข้อมูลที่จำเป็น (*) ให้ครบถ้วน');
+                alert('กรุณากรอกข้อมูลที่มีเครื่องหมาย (*) ให้ครบถ้วน');
                 return;
             }
 
             const saveBtn = document.getElementById('save-btn');
             saveBtn.disabled = true;
-            saveBtn.innerText = 'กำลังบันทึก...';
+            saveBtn.innerText = 'กำลังบันทึกข้อมูล...';
 
             userInfo = { name, address, visits, reason, suggestions };
             localStorage.setItem('user_info', JSON.stringify(userInfo));
@@ -365,38 +348,64 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload)
                 });
-
-                alert('บันทึกข้อมูลและแบบประเมินเรียบร้อยแล้ว!');
-                toggleModal('info-modal');
             } catch (error) {
-                alert('เกิดข้อผิดพลาดในการส่งข้อมูลไปยัง Google Sheets');
-                console.error('Error:', error);
+                console.error('Error sending data:', error);
             } finally {
                 saveBtn.disabled = false;
-                saveBtn.innerText = 'บันทึกข้อมูล';
+                saveBtn.innerText = 'เสร็จสิ้นเพื่อรับรางวัล';
+            }
+
+            // ปิด Modal แบบสอบถาม แล้วเปิด Modal QR Code รับของรางวัล
+            toggleModal('info-modal');
+            
+            const collectedCount = stamps.filter(Boolean).length;
+            const rewardTitle = document.getElementById('reward-title');
+            const rewardDesc = document.getElementById('reward-desc');
+            const qrImg = document.getElementById('qr-image');
+
+            if (collectedCount === 9) {
+                rewardTitle.innerText = "🎉 ยินดีด้วย! สะสมครบ 9 จุด";
+                rewardDesc.innerText = "รับรางวัล: สมุดสะสมตราประทับ (Wisdomking Passport)";
+                qrImg.src = "https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=REDEEM_PASSPORT_9_STAMPS";
+            } else {
+                rewardTitle.innerText = "🎉 ยินดีด้วย! สะสมครบ 6 จุด";
+                rewardDesc.innerText = "รับรางวัล: สติ๊กเกอร์สะสมตราประทับ";
+                qrImg.src = "https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=REDEEM_STICKER_6_STAMPS";
+            }
+
+            toggleModal('reward-modal');
+            triggerFireworks();
+        }
+
+        function confirmRedeem() {
+            if (confirm('ยืนยันการรับของรางวัลเรียบร้อยแล้วใช่หรือไม่?')) {
+                isRedeemed = true;
+                localStorage.setItem('is_redeemed', JSON.stringify(true));
+                toggleModal('reward-modal');
+                renderGrid();
+                alert('บันทึกการรับของรางวัลเรียบร้อย! ขอบคุณที่ร่วมกิจกรรม');
             }
         }
 
         function resetData() {
             if (isRedeemed) {
-                alert('คุณรับของรางวัลไปแล้ว ไม่สามารถรีเซ็ตข้อมูลได้อีก');
+                alert('คุณรับของรางวัลประจำวันนี้ไปแล้ว ไม่สามารถรีเซ็ตได้');
                 return;
             }
 
             if (confirm('ต้องการรีเซ็ตข้อมูลการสะสมตราประทับทั้งหมดหรือไม่?')) {
-                localStorage.clear();
                 stamps = Array(9).fill(false);
-                ratings = Array(9).fill(5);
+                ratings = Array(9).fill(1);
                 userInfo = { name: '', address: '', visits: '', reason: '', suggestions: '' };
-                isRedeemed = false;
+                localStorage.removeItem('stamps');
+                localStorage.removeItem('ratings');
+                localStorage.removeItem('user_info');
                 renderGrid();
-                renderRatings();
             }
         }
 
         // Init
         renderGrid();
-        renderRatings();
     </script>
 </body>
 </html>
