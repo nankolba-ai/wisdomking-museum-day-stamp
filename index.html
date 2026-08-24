@@ -165,7 +165,7 @@
             { name: "โซนที่ 1 ตามรอยพ่ออยู่อย่างพอเพียง", img: "https://i.postimg.cc/xjZGY7N9/IMG-8587.jpg" },
             { name: "โซนที่ 2 รถสมเด็จย่า", img: "https://i.postimg.cc/LsvfW0Fy/7-(4).jpg" },
             { name: "โซนที่ 3 วิถีเกษตรของพ่อ", img: "https://i.postimg.cc/V66MPBY8/1w-th-kes_tr-(41).jpg" },
-            { name: "โซนที่ 4 น้ำคือชีวิต", img: "https://i.postimg.cc/g04R7Stamp/FX7-1110-0.jpg" },
+            { name: "โซนที่ 4 น้ำคือชีวิต", img: "https://i.postimg.cc/g04R7BbT/FX7-1110-0.jpg" },
             { name: "โซนที่ 5 วิถีเกษตรลุ่มน้ำ", img: "https://i.postimg.cc/W1SpMRvF/IMG-8618.jpg" },
             { name: "โซนที่ 6 ตลาดเงินทวี", img: "https://i.postimg.cc/SKQVj9yZ/3-(6).jpg" },
             { name: "โซนที่ 7 นวัตกรรมเกษตรเศรษฐกิจพอเพียง", img: "https://i.postimg.cc/MGtRLrJ9/h-xngnw-tkr-rm-x5-ch-n-2-(24).jpg" },
@@ -173,7 +173,7 @@
             { name: "โซนที่ 9 เกษตรคือชีวิต", img: "https://i.postimg.cc/XqrwdKhg/IMG-3620.jpg" }
         ];
 
-        // ตรวจสอบการเล่นวันถัดไป
+        // ระบบรีเซ็ตสิทธิ์เล่นใหม่วันถัดไป
         const todayStr = new Date().toISOString().split('T')[0];
         let lastPlayedDate = localStorage.getItem('last_played_date');
 
@@ -187,10 +187,10 @@
         }
 
         let stamps = JSON.parse(localStorage.getItem('stamps')) || Array(9).fill(false);
-        let ratings = JSON.parse(localStorage.getItem('ratings')) || Array(9).fill(5); // 1-5 ระดับ
+        let ratings = JSON.parse(localStorage.getItem('ratings')) || Array(9).fill(5);
         let overallRating = JSON.parse(localStorage.getItem('overall_rating')) || 5;
         let userInfo = JSON.parse(localStorage.getItem('user_info')) || { name: '', address: '', visits: '', reason: '', suggestions: '' };
-        let redeemedTier = JSON.parse(localStorage.getItem('redeemed_tier')) || 0; // 0: ยังไม่แลก, 6: แลก 6 จุดแล้ว, 9: แลกครบ 9 จุดแล้ว
+        let redeemedTier = JSON.parse(localStorage.getItem('redeemed_tier')) || 0; // 0: ยังไม่แลก, 6: แลกสติ๊กเกอร์แล้ว, 9: แลกครบหมดแล้ว
 
         function triggerFireworks() {
             confetti({
@@ -201,12 +201,12 @@
             });
         }
 
-        // ตรวจสอบ URL params เมื่อสแกน QR Code
+        // สแกน QR Code จากจุดต่างๆ
         const urlParams = new URLSearchParams(window.location.search);
         const scannedZone = urlParams.get('scan');
         if (scannedZone && scannedZone >= 1 && scannedZone <= 9) {
             if (redeemedTier === 9) {
-                alert('คุณได้ทำการรับของรางวัลครบทั้ง 9 จุดประจำวันนี้เรียบร้อยแล้ว');
+                alert('คุณได้รับของรางวัลใหญ่ครบ 9 จุดประจำวันนี้เรียบร้อยแล้ว');
             } else {
                 const index = scannedZone - 1;
                 if (!stamps[index]) {
@@ -226,8 +226,6 @@
 
             ZONES.forEach((zone, index) => {
                 const isCollected = stamps[index];
-
-                // ขยายขนาดภาพในตราประทับ (w-16 h-16) และลบไอคอนตราประทับที่ทับบนภาพออก
                 grid.innerHTML += `
                     <div class="stamp-sticker ${isCollected ? 'collected' : 'not-collected'} p-2 flex flex-col items-center justify-center text-center aspect-square">
                         <img src="${zone.img}" class="w-16 h-16 rounded-full object-cover mb-1 border-2 border-pink-200 shadow-sm">
@@ -238,40 +236,39 @@
 
             document.getElementById('stamp-count').innerText = collectedCount;
             
-            // แสดงสถานะสิทธิ์รับของรางวัลพร้อมไอคอน
             const statusText = document.getElementById('reward-status-text');
+            const redeemBtn = document.getElementById('redeem-btn');
+
             if (redeemedTier === 9) {
                 statusText.innerText = "🔒 แลกครบทุกรางวัลแล้ว";
                 statusText.className = "text-xs font-bold text-gray-400";
+                redeemBtn.innerText = "🔒 รับของรางวัลครบแล้วประจำวันนี้";
+                redeemBtn.className = "w-full bg-gray-400 text-white py-3.5 rounded-2xl text-lg font-bold shadow-lg cursor-not-allowed";
             } else if (collectedCount === 9) {
                 statusText.innerText = "📘 9 จุด: รับสมุดสะสม!";
                 statusText.className = "text-xs font-bold text-pink-600 animate-pulse";
+                redeemBtn.innerText = "🎁 รับสมุดสะสมตราประทับ (ครบ 9 จุด)";
+                redeemBtn.className = "w-full bg-gradient-to-r from-pink-500 via-rose-400 to-amber-400 text-white py-3.5 rounded-2xl text-lg font-bold shadow-lg hover:brightness-105 flex items-center justify-center gap-2 transition transform active:scale-98 animate-bounce";
             } else if (collectedCount >= 6) {
                 if (redeemedTier === 6) {
                     statusText.innerText = `🎨 รับสติ๊กเกอร์แล้ว (ขาดอีก ${9 - collectedCount} จุดแลกสมุด)`;
                     statusText.className = "text-[11px] font-bold text-sky-600";
+                    redeemBtn.innerText = `🎁 สะสมต่อ (${collectedCount}/9) เพื่อรับสมุดสะสมตราประทับ`;
+                    redeemBtn.className = "w-full bg-gradient-to-r from-sky-400 to-indigo-400 text-white py-3.5 rounded-2xl text-lg font-bold shadow-lg hover:brightness-105 flex items-center justify-center gap-2 transition transform active:scale-98";
                 } else {
                     statusText.innerText = "🎨 6 จุด: รับสติ๊กเกอร์!";
                     statusText.className = "text-xs font-bold text-sky-500 animate-pulse";
+                    redeemBtn.innerText = "🎁 แสดง QR Code เพื่อรับของรางวัล (สติ๊กเกอร์)";
+                    redeemBtn.className = "w-full bg-gradient-to-r from-sky-400 via-pink-400 to-amber-400 text-white py-3.5 rounded-2xl text-lg font-bold shadow-lg hover:brightness-105 flex items-center justify-center gap-2 transition transform active:scale-98";
                 }
             } else {
                 statusText.innerText = `ขาดอีก ${6 - collectedCount} จุด แลกสติ๊กเกอร์`;
                 statusText.className = "text-xs font-bold text-pink-500";
-            }
-
-            const redeemBtn = document.getElementById('redeem-btn');
-            if (redeemedTier === 9) {
-                redeemBtn.innerText = "🔒 รับของรางวัลครบแล้วประจำวันนี้";
-                redeemBtn.classList.remove('from-sky-400', 'via-pink-400', 'to-amber-400');
-                redeemBtn.classList.add('bg-gray-400');
-            } else if (redeemedTier === 6 && collectedCount < 9) {
-                redeemBtn.innerText = `🎁 สะสมต่อ (${collectedCount}/9) เพื่อรับสมุดสะสมตราประทับ`;
-            } else {
                 redeemBtn.innerText = "🎁 แสดง QR Code เพื่อรับของรางวัล";
+                redeemBtn.className = "w-full bg-gradient-to-r from-sky-400 via-pink-400 to-amber-400 text-white py-3.5 rounded-2xl text-lg font-bold shadow-lg hover:brightness-105 flex items-center justify-center gap-2 transition transform active:scale-98";
             }
         }
 
-        // หน้าแบบสอบถาม: แสดงภาพโซน + ปรับ 5 ระดับด้วยรูปหัวใจ ❤️/🩶
         function renderRatings() {
             const container = document.getElementById('rating-container');
             container.innerHTML = '';
@@ -294,7 +291,6 @@
                 `;
             });
 
-            // คำถามข้อที่ 6: ความพึงพอใจภาพรวมกิจกรรม (5 ระดับ)
             const overallContainer = document.getElementById('overall-rating-container');
             overallContainer.innerHTML = [1, 2, 3, 4, 5].map(star => `
                 <span class="select-none transition transform active:scale-125" onclick="setOverallRating(${star})">
@@ -426,9 +422,10 @@
             }
         }
 
+        // ปรับปรุงฟังก์ชันการรีเซ็ต ป้องกันการรีเซ็ตเพื่อรับ 6 จุดซ้ำ
         function resetData() {
-            if (redeemedTier === 9) {
-                alert('คุณรับของรางวัลครบแล้ว ไม่สามารถรีเซ็ตได้');
+            if (redeemedTier >= 6) {
+                alert('คุณเคยใช้สิทธิ์รับของรางวัลไปแล้ว ไม่สามารถรีเซ็ตข้อมูลเพื่อรับรางวัล 6 จุดซ้ำได้ (แต่ยังคงสแกนสะสมต่อให้ครบ 9 จุดเพื่อรับรางวัลใหญ่ได้)');
                 return;
             }
 
