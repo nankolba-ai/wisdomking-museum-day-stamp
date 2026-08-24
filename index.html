@@ -59,7 +59,7 @@
                     <p class="text-2xl font-extrabold text-sky-500"><span id="stamp-count">0</span> / 9</p>
                 </div>
                 <div class="h-8 w-px bg-pink-200"></div>
-                <div>
+                <div class="w-1/2">
                     <p class="text-xs text-gray-500 font-semibold">สิทธิ์รับรางวัล</p>
                     <p id="reward-status-text" class="text-xs font-bold text-pink-500 mt-1">ยังไม่ถึงเกณฑ์</p>
                 </div>
@@ -152,14 +152,14 @@
             
             <img id="qr-image" src="" class="mx-auto my-4 border-4 border-dashed border-sky-300 p-2 rounded-2xl bg-sky-50">
             
-            <button onclick="confirmRedeem()" class="w-full bg-gradient-to-r from-pink-400 to-sky-400 text-white py-3 rounded-xl font-bold shadow-md hover:opacity-90">
+            <button id="confirm-btn-text" onclick="confirmRedeem()" class="w-full bg-gradient-to-r from-pink-400 to-sky-400 text-white py-3 rounded-xl font-bold shadow-md hover:opacity-90">
                 ยืนยันการรับของรางวัล (เจ้าหน้าที่กด)
             </button>
         </div>
     </div>
 
     <script>
-        const GOOGLE_SHEET_URL = "https://script.google.com/macros/s/AKfycbyXMBm4pqhePp4qIJNnQWueBZiElBLkw0D8LfWPpoikj0QdRSBFCPP62-ZATbXMU7SFWQ/exec";
+        const GOOGLE_SHEET_URL = "https://script.google.com/macros/s/AKfycbwthqmULjsOkqSyEg-qPYLg3DnrJ_MQ7Z1iBI67fVuyVuYyyD50ZBzy8kPoXO8i5HIIaA/exec";
 
         const ZONES = [
             { name: "โซนที่ 1 ตามรอยพ่ออยู่อย่างพอเพียง", img: "https://i.postimg.cc/xjZGY7N9/IMG-8587.jpg" },
@@ -190,7 +190,7 @@
         let ratings = JSON.parse(localStorage.getItem('ratings')) || Array(9).fill(5);
         let overallRating = JSON.parse(localStorage.getItem('overall_rating')) || 5;
         let userInfo = JSON.parse(localStorage.getItem('user_info')) || { name: '', address: '', visits: '', reason: '', suggestions: '' };
-        let redeemedTier = JSON.parse(localStorage.getItem('redeemed_tier')) || 0; // 0: ยังไม่แลก, 6: แลกสติ๊กเกอร์แล้ว, 9: แลกครบหมดแล้ว
+        let redeemedTier = JSON.parse(localStorage.getItem('redeemed_tier')) || 0; // 0: ยังไม่เคยรับรางวัลเลย, 6: รับรางวัลหมื่นดู้แล้ว, 9: รับครบหมดแล้ว
 
         function triggerFireworks() {
             confetti({
@@ -206,7 +206,7 @@
         const scannedZone = urlParams.get('scan');
         if (scannedZone && scannedZone >= 1 && scannedZone <= 9) {
             if (redeemedTier === 9) {
-                alert('คุณได้รับของรางวัลใหญ่ครบ 9 จุดประจำวันนี้เรียบร้อยแล้ว');
+                alert('คุณได้รับของรางวัลมหาดดู้ (9 จุด) ประจำวันนี้เรียบร้อยแล้ว');
             } else {
                 const index = scannedZone - 1;
                 if (!stamps[index]) {
@@ -245,26 +245,26 @@
                 redeemBtn.innerText = "🔒 รับของรางวัลครบแล้วประจำวันนี้";
                 redeemBtn.className = "w-full bg-gray-400 text-white py-3.5 rounded-2xl text-lg font-bold shadow-lg cursor-not-allowed";
             } else if (collectedCount === 9) {
-                statusText.innerText = "📘 9 จุด: รับสมุดสะสม!";
+                statusText.innerText = "📘 9 จุด: รับของรางวัลมหาดดู้!";
                 statusText.className = "text-xs font-bold text-pink-600 animate-pulse";
-                redeemBtn.innerText = "🎁 รับสมุดสะสมตราประทับ (ครบ 9 จุด)";
+                redeemBtn.innerText = "🎁 รับของรางวัลมหาดดู้ (ครบ 9 จุด)";
                 redeemBtn.className = "w-full bg-gradient-to-r from-pink-500 via-rose-400 to-amber-400 text-white py-3.5 rounded-2xl text-lg font-bold shadow-lg hover:brightness-105 flex items-center justify-center gap-2 transition transform active:scale-98 animate-bounce";
             } else if (collectedCount >= 6) {
                 if (redeemedTier === 6) {
-                    statusText.innerText = `🎨 รับสติ๊กเกอร์แล้ว (ขาดอีก ${9 - collectedCount} จุดแลกสมุด)`;
+                    statusText.innerText = `🎨 รับรางวัลหมื่นดู้แล้ว (ขาดอีก ${9 - collectedCount} จุดแลกมหาดดู้)`;
                     statusText.className = "text-[11px] font-bold text-sky-600";
-                    redeemBtn.innerText = `🎁 สะสมต่อ (${collectedCount}/9) เพื่อรับสมุดสะสมตราประทับ`;
+                    redeemBtn.innerText = `🎁 สะสมต่อ (${collectedCount}/9) เพื่อรับของรางวัลมหาดดู้`;
                     redeemBtn.className = "w-full bg-gradient-to-r from-sky-400 to-indigo-400 text-white py-3.5 rounded-2xl text-lg font-bold shadow-lg hover:brightness-105 flex items-center justify-center gap-2 transition transform active:scale-98";
                 } else {
-                    statusText.innerText = "🎨 6 จุด: รับสติ๊กเกอร์!";
-                    statusText.className = "text-xs font-bold text-sky-500 animate-pulse";
-                    redeemBtn.innerText = "🎁 แสดง QR Code เพื่อรับของรางวัล (สติ๊กเกอร์)";
-                    redeemBtn.className = "w-full bg-gradient-to-r from-sky-400 via-pink-400 to-amber-400 text-white py-3.5 rounded-2xl text-lg font-bold shadow-lg hover:brightness-105 flex items-center justify-center gap-2 transition transform active:scale-98";
+                    statusText.innerText = "🎨 6 จุด: รับของรางวัลหมื่นดู้ (ยังไม่ได้กดรับ)";
+                    statusText.className = "text-xs font-bold text-pink-600 animate-pulse";
+                    redeemBtn.innerText = "🎁 แสดง QR Code เพื่อรับของรางวัลหมื่นดู้";
+                    redeemBtn.className = "w-full bg-gradient-to-r from-sky-400 via-pink-400 to-amber-400 text-white py-3.5 rounded-2xl text-lg font-bold shadow-lg hover:brightness-105 flex items-center justify-center gap-2 transition transform active:scale-98 animate-bounce";
                 }
             } else {
-                statusText.innerText = `ขาดอีก ${6 - collectedCount} จุด แลกสติ๊กเกอร์`;
+                statusText.innerText = `ขาดอีก ${6 - collectedCount} จุด แลกรางวัลหมื่นดู้`;
                 statusText.className = "text-xs font-bold text-pink-500";
-                redeemBtn.innerText = "🎁 แสดง QR Code เพื่อรับของรางวัล";
+                redeemBtn.innerText = "🎁 สะสมให้ครบ 6 จุด เพื่อรับของรางวัลหมื่นดู้";
                 redeemBtn.className = "w-full bg-gradient-to-r from-sky-400 via-pink-400 to-amber-400 text-white py-3.5 rounded-2xl text-lg font-bold shadow-lg hover:brightness-105 flex items-center justify-center gap-2 transition transform active:scale-98";
             }
         }
@@ -330,12 +330,12 @@
 
             const collectedCount = stamps.filter(Boolean).length;
             if (collectedCount < 6) {
-                alert(`คุณต้องสะสม Stamp ให้ครบอย่างน้อย 6 จุดเพื่อรับรางวัล (ปัจจุบันมี ${collectedCount} จุด)`);
+                alert(`คุณต้องสะสม Stamp ให้ครบอย่างน้อย 6 จุดเพื่อรับของรางวัลหมื่นดู้ (ปัจจุบันมี ${collectedCount} จุด)`);
                 return;
             }
 
             if (collectedCount >= 6 && collectedCount < 9 && redeemedTier === 6) {
-                alert(`คุณเคยรับรางวัลสติ๊กเกอร์ (6 จุด) ไปแล้ว กรุณาสะสมต่อให้ครบ 9 จุดเพื่อรับสมุดสะสมตราประทับ`);
+                alert(`คุณเคยรับของรางวัลหมื่นดู้ (6 จุด) ไปแล้ว กรุณาสะสมต่อให้ครบ 9 จุดเพื่อรับของรางวัลมหาดดู้`);
                 return;
             }
 
@@ -392,15 +392,18 @@
             const rewardTitle = document.getElementById('reward-title');
             const rewardDesc = document.getElementById('reward-desc');
             const qrImg = document.getElementById('qr-image');
+            const confirmBtnText = document.getElementById('confirm-btn-text');
 
             if (collectedCount === 9) {
                 rewardTitle.innerText = "🎉 ยินดีด้วย! สะสมครบ 9 จุด";
-                rewardDesc.innerText = "รับรางวัล: สมุดสะสมตราประทับ (Wisdomking Passport) 📘";
-                qrImg.src = "https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=REDEEM_PASSPORT_9_STAMPS";
+                rewardDesc.innerText = "รับของรางวัลใหญ่: ของรางวัลมหาดดู้ 📘";
+                qrImg.src = "https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=REDEEM_MAHADOO_9_STAMPS";
+                confirmBtnText.innerText = "ยืนยันการรับของรางวัลมหาดดู้ (เจ้าหน้าที่กด)";
             } else {
                 rewardTitle.innerText = "🎉 ยินดีด้วย! สะสมครบ 6 จุด";
-                rewardDesc.innerText = "รับรางวัล: สติ๊กเกอร์สะสมตราประทับ 🎨\n(สามารถสะสมต่อจนครบ 9 จุดเพื่อรับสมุดสะสมได้)";
-                qrImg.src = "https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=REDEEM_STICKER_6_STAMPS";
+                rewardDesc.innerText = "รับของรางวัล: ของรางวัลหมื่นดู้ 🎨\n(สามารถสะสมต่อจนครบ 9 จุดเพื่อรับของรางวัลมหาดดู้ได้)";
+                qrImg.src = "https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=REDEEM_MUANDOO_6_STAMPS";
+                confirmBtnText.innerText = "ยืนยันการรับของรางวัลหมื่นดู้ (เจ้าหน้าที่กด)";
             }
 
             toggleModal('reward-modal');
@@ -422,10 +425,9 @@
             }
         }
 
-        // ปรับปรุงฟังก์ชันการรีเซ็ต ป้องกันการรีเซ็ตเพื่อรับ 6 จุดซ้ำ
         function resetData() {
             if (redeemedTier >= 6) {
-                alert('คุณเคยใช้สิทธิ์รับของรางวัลไปแล้ว ไม่สามารถรีเซ็ตข้อมูลเพื่อรับรางวัล 6 จุดซ้ำได้ (แต่ยังคงสแกนสะสมต่อให้ครบ 9 จุดเพื่อรับรางวัลใหญ่ได้)');
+                alert('คุณเคยใช้สิทธิ์รับของรางวัลไปแล้ว ไม่สามารถรีเซ็ตข้อมูลเพื่อรับรางวัลหมื่นดู้ซ้ำได้ (แต่ยังคงสแกนสะสมต่อให้ครบ 9 จุดเพื่อรับของรางวัลมหาดดู้ได้)');
                 return;
             }
 
