@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>พิพิธภัณฑ์การเกษตรเฉลิมพระเกียรติฯ - สะสม Stamp</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- ไลบรารีสำหรับแสดงเอฟเฟกต์พลุ (Confetti) -->
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Kanit:wght@400;600;700&display=swap');
@@ -14,7 +13,6 @@
             background: linear-gradient(135deg, #a8edd8 0%, #h8e5ff 100%);
             background-attachment: fixed;
         }
-        /* ตกแต่งการ์ดแสตมป์ให้ออกแนว Stamp Sticker ขอบรอยปรุ */
         .stamp-sticker {
             background-color: #fff;
             border: 4px dashed #f472b6;
@@ -70,10 +68,12 @@
         <div class="p-4 flex-1">
             <div class="flex justify-between items-center mb-3">
                 <h2 class="text-md font-bold text-gray-700 flex items-center gap-1">🌸 สะสมตราประทับของคุณ</h2>
-                <button id="reset-btn" onclick="resetData()" class="text-xs text-pink-400 hover:text-pink-600 underline font-medium">รีเซ็ตข้อมูล</button>
+                <div class="flex gap-2">
+                    <button onclick="toggleModal('stock-modal')" class="text-xs text-amber-600 hover:text-amber-800 underline font-semibold">📊 สรุปสต๊อก</button>
+                    <button id="reset-btn" onclick="resetData()" class="text-xs text-pink-400 hover:text-pink-600 underline font-medium">รีเซ็ตข้อมูล</button>
+                </div>
             </div>
 
-            <!-- Grid 9 Zones -->
             <div id="stamp-grid" class="grid grid-cols-3 gap-3"></div>
         </div>
 
@@ -148,12 +148,44 @@
         <div class="bg-white rounded-3xl p-6 w-full max-w-sm text-center border-4 border-sky-200 shadow-2xl relative">
             <div class="text-6xl mb-2 animate-bounce">🎉</div>
             <h3 id="reward-title" class="text-xl font-bold text-sky-600">สะสมครบแลกรับรางวัล!</h3>
-            <p id="reward-desc" class="text-xs text-gray-500 mt-1">กรุณาแสดง QR Code นี้ให้เจ้าหน้าที่เพื่อรับของรางวัล</p>
+            <div id="reward-desc-box" class="bg-amber-50 border-2 border-amber-200 rounded-2xl p-3 my-2 text-left">
+                <p id="reward-desc" class="text-xs text-gray-700 font-medium whitespace-pre-line"></p>
+            </div>
             
-            <img id="qr-image" src="" class="mx-auto my-4 border-4 border-dashed border-sky-300 p-2 rounded-2xl bg-sky-50">
+            <img id="qr-image" src="" class="mx-auto my-3 border-4 border-dashed border-sky-300 p-2 rounded-2xl bg-sky-50">
             
             <button id="confirm-btn-text" onclick="confirmRedeem()" class="w-full bg-gradient-to-r from-pink-400 to-sky-400 text-white py-3 rounded-xl font-bold shadow-md hover:opacity-90">
                 ยืนยันการรับของรางวัล (เจ้าหน้าที่กด)
+            </button>
+        </div>
+    </div>
+
+    <!-- Modal: Stock Summary for Admin -->
+    <div id="stock-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-3xl p-6 w-full max-w-sm border-4 border-amber-300 shadow-2xl">
+            <h3 class="text-lg font-bold text-amber-600 text-center mb-1">📊 สรุปยอดตัดสต๊อกของรางวัล</h3>
+            <p class="text-xs text-gray-500 text-center mb-4">สรุปจำนวนของรางวัลที่ถูกแจกจ่ายไปแล้วทั้งหมด</p>
+            
+            <div class="space-y-3">
+                <div class="bg-pink-50 border-2 border-pink-200 p-3 rounded-2xl flex justify-between items-center">
+                    <div>
+                        <p class="text-xs font-bold text-gray-600">🎨 ของรางวัลหมื่นดู้</p>
+                        <p class="text-[10px] text-gray-400">แจกไปแล้วทั้งหมด</p>
+                    </div>
+                    <span id="stock-muandoo-count" class="text-2xl font-extrabold text-pink-600">0</span>
+                </div>
+
+                <div class="bg-sky-50 border-2 border-sky-200 p-3 rounded-2xl flex justify-between items-center">
+                    <div>
+                        <p class="text-xs font-bold text-gray-600">📘 ของรางวัลมหาดดู้</p>
+                        <p class="text-[10px] text-gray-400">แจกไปแล้วทั้งหมด</p>
+                    </div>
+                    <span id="stock-mahadoo-count" class="text-2xl font-extrabold text-sky-600">0</span>
+                </div>
+            </div>
+
+            <button onclick="toggleModal('stock-modal')" class="w-full mt-5 bg-amber-500 text-white py-2.5 rounded-xl font-bold text-sm hover:bg-amber-600 shadow-md">
+                ปิดหน้าต่าง
             </button>
         </div>
     </div>
@@ -173,7 +205,6 @@
             { name: "โซนที่ 9 เกษตรคือชีวิต", img: "https://i.postimg.cc/XqrwdKhg/IMG-3620.jpg" }
         ];
 
-        // ระบบรีเซ็ตสิทธิ์เล่นใหม่วันถัดไป
         const todayStr = new Date().toISOString().split('T')[0];
         let lastPlayedDate = localStorage.getItem('last_played_date');
 
@@ -190,7 +221,16 @@
         let ratings = JSON.parse(localStorage.getItem('ratings')) || Array(9).fill(5);
         let overallRating = JSON.parse(localStorage.getItem('overall_rating')) || 5;
         let userInfo = JSON.parse(localStorage.getItem('user_info')) || { name: '', address: '', visits: '', reason: '', suggestions: '' };
-        let redeemedTier = JSON.parse(localStorage.getItem('redeemed_tier')) || 0; // 0: ยังไม่เคยรับรางวัลเลย, 6: รับรางวัลหมื่นดู้แล้ว, 9: รับครบหมดแล้ว
+        let redeemedTier = JSON.parse(localStorage.getItem('redeemed_tier')) || 0; 
+
+        // ระบบสรุปยอดคงเหลือของรางวัล
+        let totalMuandooGiven = parseInt(localStorage.getItem('total_muandoo_given')) || 0;
+        let totalMahadooGiven = parseInt(localStorage.getItem('total_mahadoo_given')) || 0;
+
+        function updateStockDashboard() {
+            document.getElementById('stock-muandoo-count').innerText = totalMuandooGiven;
+            document.getElementById('stock-mahadoo-count').innerText = totalMahadooGiven;
+        }
 
         function triggerFireworks() {
             confetti({
@@ -201,7 +241,6 @@
             });
         }
 
-        // สแกน QR Code จากจุดต่างๆ
         const urlParams = new URLSearchParams(window.location.search);
         const scannedZone = urlParams.get('scan');
         if (scannedZone && scannedZone >= 1 && scannedZone <= 9) {
@@ -245,9 +284,15 @@
                 redeemBtn.innerText = "🔒 รับของรางวัลครบแล้วประจำวันนี้";
                 redeemBtn.className = "w-full bg-gray-400 text-white py-3.5 rounded-2xl text-lg font-bold shadow-lg cursor-not-allowed";
             } else if (collectedCount === 9) {
-                statusText.innerText = "📘 9 จุด: รับของรางวัลมหาดดู้!";
-                statusText.className = "text-xs font-bold text-pink-600 animate-pulse";
-                redeemBtn.innerText = "🎁 รับของรางวัลมหาดดู้ (ครบ 9 จุด)";
+                if (redeemedTier === 6) {
+                    statusText.innerText = "📘 9 จุด: รับรางวัลมหาดดู้!";
+                    statusText.className = "text-xs font-bold text-pink-600 animate-pulse";
+                    redeemBtn.innerText = "🎁 รับของรางวัลมหาดดู้ (ครบ 9 จุด)";
+                } else {
+                    statusText.innerText = "🎁 9 จุด: รับรางวัลหมื่นดู้ + มหาดดู้!";
+                    statusText.className = "text-[11px] font-bold text-pink-600 animate-pulse";
+                    redeemBtn.innerText = "🎁 รับของรางวัลหมื่นดู้ และ มหาดดู้";
+                }
                 redeemBtn.className = "w-full bg-gradient-to-r from-pink-500 via-rose-400 to-amber-400 text-white py-3.5 rounded-2xl text-lg font-bold shadow-lg hover:brightness-105 flex items-center justify-center gap-2 transition transform active:scale-98 animate-bounce";
             } else if (collectedCount >= 6) {
                 if (redeemedTier === 6) {
@@ -267,6 +312,7 @@
                 redeemBtn.innerText = "🎁 สะสมให้ครบ 6 จุด เพื่อรับของรางวัลหมื่นดู้";
                 redeemBtn.className = "w-full bg-gradient-to-r from-sky-400 via-pink-400 to-amber-400 text-white py-3.5 rounded-2xl text-lg font-bold shadow-lg hover:brightness-105 flex items-center justify-center gap-2 transition transform active:scale-98";
             }
+            updateStockDashboard();
         }
 
         function renderRatings() {
@@ -355,36 +401,8 @@
                 return;
             }
 
-            const saveBtn = document.getElementById('save-btn');
-            saveBtn.disabled = true;
-            saveBtn.innerText = 'กำลังบันทึก...';
-
             userInfo = { name, address, visits, reason, suggestions };
             localStorage.setItem('user_info', JSON.stringify(userInfo));
-
-            const payload = {
-                name: name,
-                address: address,
-                visits: visits,
-                reason: reason,
-                suggestions: suggestions,
-                ratings: ratings,
-                overall_rating: overallRating
-            };
-
-            try {
-                await fetch(GOOGLE_SHEET_URL, {
-                    method: 'POST',
-                    mode: 'no-cors',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-            } catch (error) {
-                console.error('Error sending data:', error);
-            } finally {
-                saveBtn.disabled = false;
-                saveBtn.innerText = 'เสร็จสิ้นเพื่อรับรางวัล';
-            }
 
             toggleModal('info-modal');
             
@@ -396,12 +414,18 @@
 
             if (collectedCount === 9) {
                 rewardTitle.innerText = "🎉 ยินดีด้วย! สะสมครบ 9 จุด";
-                rewardDesc.innerText = "รับของรางวัลใหญ่: ของรางวัลมหาดดู้ 📘";
-                qrImg.src = "https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=REDEEM_MAHADOO_9_STAMPS";
-                confirmBtnText.innerText = "ยืนยันการรับของรางวัลมหาดดู้ (เจ้าหน้าที่กด)";
+                if (redeemedTier === 6) {
+                    rewardDesc.innerHTML = "🎁 <b>สิทธิ์รับของรางวัล:</b><br>• ของรางวัลมหาดดู้ 📘";
+                    qrImg.src = "https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=REDEEM_MAHADOO_9_STAMPS";
+                    confirmBtnText.innerText = "ยืนยันการรับของรางวัลมหาดดู้ (เจ้าหน้าที่กด)";
+                } else {
+                    rewardDesc.innerHTML = "🎁 <b>สิทธิ์รับของรางวัล (2 รายการ):</b><br>1. ของรางวัลหมื่นดู้ 🎨<br>2. ของรางวัลมหาดดู้ 📘";
+                    qrImg.src = "https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=REDEEM_DOUBLE_MUANDOO_AND_MAHADOO";
+                    confirmBtnText.innerText = "ยืนยันการรับของรางวัลทั้ง 2 ชิ้น (เจ้าหน้าที่กด)";
+                }
             } else {
                 rewardTitle.innerText = "🎉 ยินดีด้วย! สะสมครบ 6 จุด";
-                rewardDesc.innerText = "รับของรางวัล: ของรางวัลหมื่นดู้ 🎨\n(สามารถสะสมต่อจนครบ 9 จุดเพื่อรับของรางวัลมหาดดู้ได้)";
+                rewardDesc.innerHTML = "🎁 <b>สิทธิ์รับของรางวัล:</b><br>• ของรางวัลหมื่นดู้ 🎨<br><span class='text-[10px] text-gray-500'>(สะสมต่อจนครบ 9 จุดเพื่อรับของรางวัลมหาดดู้ได้)</span>";
                 qrImg.src = "https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=REDEEM_MUANDOO_6_STAMPS";
                 confirmBtnText.innerText = "ยืนยันการรับของรางวัลหมื่นดู้ (เจ้าหน้าที่กด)";
             }
@@ -410,18 +434,66 @@
             triggerFireworks();
         }
 
-        function confirmRedeem() {
+        async function confirmRedeem() {
             const collectedCount = stamps.filter(Boolean).length;
             if (confirm('ยืนยันการรับของรางวัลเรียบร้อยแล้วใช่หรือไม่?')) {
+                
+                let redeemType = "";
+                let muandooQty = 0;
+                let mahadooQty = 0;
+
                 if (collectedCount === 9) {
-                    redeemedTier = 9;
+                    if (redeemedTier === 6) {
+                        redeemType = "9_STAMPS_SINGLE_MAHADOO";
+                        mahadooQty = 1;
+                        redeemedTier = 9;
+                    } else {
+                        redeemType = "9_STAMPS_DOUBLE_REWARD";
+                        muandooQty = 1;
+                        mahadooQty = 1;
+                        redeemedTier = 9;
+                    }
                 } else if (collectedCount >= 6) {
+                    redeemType = "6_STAMPS_MUANDOO";
+                    muandooQty = 1;
                     redeemedTier = 6;
                 }
+
+                // อัปเดตสต๊อกท้องถิ่น
+                totalMuandooGiven += muandooQty;
+                totalMahadooGiven += mahadooQty;
+                localStorage.setItem('total_muandoo_given', totalMuandooGiven);
+                localStorage.setItem('total_mahadoo_given', totalMahadooGiven);
+
+                // ส่งข้อมูลทั้งหมดเข้า Google Sheets
+                const payload = {
+                    name: userInfo.name,
+                    address: userInfo.address,
+                    visits: userInfo.visits,
+                    reason: userInfo.reason,
+                    suggestions: userInfo.suggestions,
+                    ratings: ratings,
+                    overall_rating: overallRating,
+                    redeem_type: redeemType,
+                    muandoo_qty: muandooQty,
+                    mahadoo_qty: mahadooQty
+                };
+
+                try {
+                    await fetch(GOOGLE_SHEET_URL, {
+                        method: 'POST',
+                        mode: 'no-cors',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                } catch (error) {
+                    console.error('Error sending data:', error);
+                }
+
                 localStorage.setItem('redeemed_tier', JSON.stringify(redeemedTier));
                 toggleModal('reward-modal');
                 renderGrid();
-                alert('บันทึกการรับของรางวัลสำเร็จ!');
+                alert('บันทึกการรับของรางวัลลง Google Sheet สำเร็จ!');
             }
         }
 
@@ -446,7 +518,6 @@
             }
         }
 
-        // Init
         renderGrid();
     </script>
 </body>
