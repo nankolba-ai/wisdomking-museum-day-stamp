@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ระบบสะสมตราประทับ & แลกรับของรางวัล (Test Mode)</title>
+    <title>ระบบสะสมตราประทับ & แลกรับของรางวัล</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome Icons -->
@@ -20,10 +20,11 @@
         }
         .heart-rating i {
             cursor: pointer;
-            transition: transform 0.1s ease, color 0.1s ease;
+            transition: transform 0.15s ease, color 0.15s ease;
+            padding: 0 2px;
         }
         .heart-rating i:hover {
-            transform: scale(1.2);
+            transform: scale(1.25);
         }
         .stamp-card {
             background: linear-gradient(135deg, #ffffff 0%, #f9fafb 100%);
@@ -31,11 +32,6 @@
     </style>
 </head>
 <body class="bg-slate-100 min-h-screen py-6 px-4">
-
-    <!-- Banner ประกาศโหมดทดสอบ -->
-    <div class="max-w-md mx-auto mb-4 bg-amber-500 text-white text-center py-2 px-4 rounded-lg shadow font-medium text-sm">
-        ⚠️ อยู่ในโหมดทดสอบระบบ (แสตมป์ครบ 6 ดวงอัตโนมัติ / บันทึกซ้ำได้)
-    </div>
 
     <div class="max-w-md mx-auto bg-white rounded-2xl shadow-xl overflow-hidden border border-slate-200">
         
@@ -51,11 +47,8 @@
             <div class="stamp-card p-4 rounded-xl border border-slate-200 shadow-sm">
                 <div class="flex justify-between items-center mb-3">
                     <h2 class="font-bold text-slate-800 flex items-center gap-2">
-                        <span>🌸</span> สะสมตราประทับของคุณ
+                        <span>🌸</span> ตราประทับของคุณ (<span id="stampCountText">0</span>/6)
                     </h2>
-                    <button onclick="resetTestData()" class="text-xs bg-rose-100 text-rose-600 hover:bg-rose-200 px-2.5 py-1 rounded-full font-medium transition">
-                        <i class="fa-solid fa-rotate-left mr-1"></i>รีเซ็ตการเทส
-                    </button>
                 </div>
 
                 <div class="grid grid-cols-3 gap-3 my-2" id="stampGrid">
@@ -98,7 +91,7 @@
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-slate-700 mb-1">เหตุผลที่มา <span class="text-red-500">*</span></label>
-                            <input type="text" id="inputReason" required placeholder="เช่น เที่ยวชม, งานสัมมนา" class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:outline-none text-sm">
+                            <input type="text" id="inputReason" required placeholder="เช่น เที่ยวชม, สัมมนา" class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:outline-none text-sm">
                         </div>
                     </div>
 
@@ -110,7 +103,7 @@
 
                 <!-- ให้คะแนนความพึงพอใจ -->
                 <div class="pt-3 border-t">
-                    <label class="block text-sm font-bold text-slate-800 mb-2">ให้คะแนนความพึงพอใจ (1-5 หัวใจ)</label>
+                    <label class="block text-sm font-bold text-slate-800 mb-2">ให้คะแนนความพึงพอใจ (แตะเพื่อเปลี่ยนคะแนน)</label>
                     
                     <!-- ภาพรวม -->
                     <div class="bg-emerald-50 p-3 rounded-lg mb-3 border border-emerald-100 flex justify-between items-center">
@@ -150,10 +143,12 @@
     </div>
 
     <script>
-        // URL สคริปต์ Google Apps Script ล่าสุดของคุณ
         const GOOGLE_SHEET_URL = "https://script.google.com/macros/s/AKfycbyed4nq3eyO4esgHFFVb68lVWp255FrLUG_DWy2rYpkr1KLTnsahAvkgc0Jp3hHwUAdDA/exec";
 
-        // สถานะคะแนน (เริ่มต้น 5 ทุกช่อง)
+        // จำนวนแสตมป์ที่สะสมได้จริงจากเครื่องผู้ใช้
+        let collectedStamps = parseInt(localStorage.getItem('user_stamps') || '0');
+        
+        // ค่าคะแนนตั้งต้น
         let overallRating = 5;
         let zoneRatings = [5, 5, 5, 5, 5, 5, 5, 5, 5];
 
@@ -162,32 +157,32 @@
             initRatingUI();
         };
 
-        // วาดแสตมป์ (โหมดเทส: ครบ 6 ดวงทันที)
+        // แสดงตราประทับ
         function renderStamps() {
+            document.getElementById('stampCountText').innerText = collectedStamps;
             const container = document.getElementById('stampGrid');
             container.innerHTML = '';
             for (let i = 1; i <= 6; i++) {
+                const isStamped = i <= collectedStamps;
                 container.innerHTML += `
-                    <div class="h-16 rounded-xl border-2 border-dashed border-emerald-400 bg-emerald-50 flex flex-col items-center justify-center relative overflow-hidden shadow-inner">
-                        <span class="text-xl">🌸</span>
-                        <span class="text-[10px] text-emerald-700 font-bold mt-0.5">จุดที่ ${i}</span>
-                        <div class="absolute inset-0 bg-emerald-500/10 flex items-center justify-center">
-                            <i class="fa-solid fa-check text-emerald-600 text-xs bg-white rounded-full p-0.5 shadow"></i>
-                        </div>
+                    <div class="h-16 rounded-xl border-2 ${isStamped ? 'border-emerald-500 bg-emerald-50' : 'border-dashed border-slate-300 bg-slate-50'} flex flex-col items-center justify-center relative overflow-hidden transition">
+                        <span class="text-xl">${isStamped ? '🌸' : '⚪'}</span>
+                        <span class="text-[10px] ${isStamped ? 'text-emerald-700 font-bold' : 'text-slate-400'} mt-0.5">จุดที่ ${i}</span>
+                        ${isStamped ? '<div class="absolute inset-0 bg-emerald-500/10 flex items-center justify-center"><i class="fa-solid fa-check text-emerald-600 text-xs bg-white rounded-full p-0.5 shadow"></i></div>' : ''}
                     </div>
                 `;
             }
         }
 
-        // สร้าง UI คะแนนแบบหัวใจ (โดยไม่ให้ล้างค่าใน Form)
+        // สร้าง UI คะแนนแบบหัวใจที่คลิกเปลี่ยนได้ตลอดเวลา
         function initRatingUI() {
             // Render คะแนนภาพรวม
-            renderHearts('rating-overall', overallRating, (val) => {
-                overallRating = val;
-                renderHearts('rating-overall', overallRating);
+            renderHearts('rating-overall', overallRating, (newVal) => {
+                overallRating = newVal;
+                initRatingUI();
             });
 
-            // Render คะแนนโซน 1-9
+            // Render คะแนนรายโซน 1-9
             const zoneContainer = document.getElementById('zoneRatingsContainer');
             zoneContainer.innerHTML = '';
             for (let i = 0; i < 9; i++) {
@@ -199,14 +194,18 @@
                 `;
                 zoneContainer.appendChild(zoneDiv);
 
-                renderHearts(`rating-zone-${i}`, zoneRatings[i], (val) => {
-                    zoneRatings[i] = val;
-                    renderHearts(`rating-zone-${i}`, zoneRatings[i]);
-                });
+                updateZoneHeartUI(i);
             }
         }
 
-        // ฟังก์ชันวาดหัวใจตามคะแนน
+        function updateZoneHeartUI(zoneIndex) {
+            renderHearts(`rating-zone-${zoneIndex}`, zoneRatings[zoneIndex], (newVal) => {
+                zoneRatings[zoneIndex] = newVal;
+                updateZoneHeartUI(zoneIndex);
+            });
+        }
+
+        // ฟังก์ชันสร้างดวงดาว/หัวใจ และผูก Event คลิกสลับคะแนน
         function renderHearts(containerId, currentVal, onClickCallback) {
             const el = document.getElementById(containerId);
             if (!el) return;
@@ -214,16 +213,21 @@
             for (let i = 1; i <= 5; i++) {
                 const heart = document.createElement('i');
                 heart.className = i <= currentVal ? 'fa-solid fa-heart text-rose-500' : 'fa-regular fa-heart text-slate-300';
-                if (onClickCallback) {
-                    heart.onclick = () => onClickCallback(i);
-                }
+                heart.onclick = function() {
+                    onClickCallback(i);
+                };
                 el.appendChild(heart);
             }
         }
 
-        // ฟังก์ชันกดส่งข้อมูลเข้า Google Sheets
+        // ส่งข้อมูลเข้า Google Sheets
         function handleFormSubmit(event) {
             event.preventDefault();
+
+            if (collectedStamps < 6) {
+                Swal.fire('สะสมแสตมป์ยังไม่ครบ', 'ต้องสะสมตราประทับให้ครบ 6 จุดก่อนจึงจะแลกรับของรางวัลได้ครับ', 'warning');
+                return;
+            }
 
             const rewardChoice = document.querySelector('input[name="reward_option"]:checked')?.value;
             if (!rewardChoice) {
@@ -235,7 +239,6 @@
             btn.disabled = true;
             btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> กำลังบันทึกข้อมูล...';
 
-            // จัดเตรียมข้อมูลส่งให้ Google Apps Script
             const payload = {
                 name: document.getElementById('inputName').value,
                 address: document.getElementById('inputAddress').value,
@@ -257,11 +260,19 @@
             .then(() => {
                 Swal.fire({
                     icon: 'success',
-                    title: 'บันทึกสำเร็จ!',
-                    text: `บันทึกข้อมูลและแจกรางวัล (${rewardChoice === 'muandoo' ? 'หมื่นดู้' : 'มหาดดู้'}) เรียบร้อยแล้ว`,
+                    title: 'แลกรับของรางวัลสำเร็จ!',
+                    text: `ขอบคุณที่ร่วมกิจกรรมครับ รับของรางวัล (${rewardChoice === 'muandoo' ? 'หมื่นดู้' : 'มหาดดู้'}) ได้ที่จุดอำนวยการ`,
                     confirmButtonText: 'ตกลง'
                 }).then(() => {
-                    // รีเซ็ตเฉพาะตัวเลือกล่าสุดเพื่อพร้อมเทสรอบถัดไป
+                    // ล้างแบบสอบถามเพื่อต้อนรับผู้เล่นถัดไป
+                    document.getElementById('surveyForm').reset();
+                    overallRating = 5;
+                    zoneRatings = [5, 5, 5, 5, 5, 5, 5, 5, 5];
+                    collectedStamps = 0;
+                    localStorage.removeItem('user_stamps');
+                    renderStamps();
+                    initRatingUI();
+
                     btn.disabled = false;
                     btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> ยืนยันการบันทึกและรับรางวัล';
                 });
@@ -271,20 +282,6 @@
                 Swal.fire('เกิดข้อผิดพลาด', 'ไม่สามารถบันทึกข้อมูลได้ กรุณาลองใหม่อีกครั้ง', 'error');
                 btn.disabled = false;
                 btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> ยืนยันการบันทึกและรับรางวัล';
-            });
-        }
-
-        // ปุ่มรีเซ็ตข้อมูลการเทส
-        function resetTestData() {
-            document.getElementById('surveyForm').reset();
-            overallRating = 5;
-            zoneRatings = [5, 5, 5, 5, 5, 5, 5, 5, 5];
-            initRatingUI();
-            Swal.fire({
-                icon: 'info',
-                title: 'รีเซ็ตข้อมูลเทสแล้ว',
-                timer: 1000,
-                showConfirmButton: false
             });
         }
     </script>
