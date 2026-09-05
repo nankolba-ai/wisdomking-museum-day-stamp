@@ -95,8 +95,8 @@
                 </div>
 
                 <div>
-                    <label class="text-xs font-bold text-gray-600 block mb-1">2. ที่อยู่ปัจจุบัน *</label>
-                    <textarea id="user-address" rows="2" class="w-full border-2 border-pink-100 rounded-xl p-2.5 text-sm focus:border-pink-400 outline-none" placeholder="กรอกที่อยู่ปัจจุบัน"></textarea>
+                    <label class="text-xs font-bold text-gray-600 block mb-1">2. ที่อยู่ปัจจุบัน</label>
+                    <textarea id="user-address" rows="2" class="w-full border-2 border-pink-100 rounded-xl p-2.5 text-sm focus:border-pink-400 outline-none" placeholder="กรอกที่อยู่ปัจจุบัน (ถ้ามี)"></textarea>
                 </div>
 
                 <div>
@@ -272,6 +272,23 @@
             }
         }
 
+        // ดึงข้อมูลจากช่อง Input ปัจจุบันไว้ เพื่อป้องกันข้อมูลหายเมื่อเกิดการ Render ใหม่
+        function syncInputsToUserInfo() {
+            const nameEl = document.getElementById('user-name');
+            const addressEl = document.getElementById('user-address');
+            const visitsEl = document.getElementById('user-visits');
+            const reasonEl = document.getElementById('user-reason');
+            const suggestionsEl = document.getElementById('user-suggestions');
+
+            if (nameEl) {
+                userInfo.name = nameEl.value;
+                userInfo.address = addressEl.value;
+                userInfo.visits = visitsEl.value;
+                userInfo.reason = reasonEl.value;
+                userInfo.suggestions = suggestionsEl.value;
+            }
+        }
+
         function renderRatings() {
             const container = document.getElementById('rating-container');
             container.innerHTML = '';
@@ -309,12 +326,14 @@
         }
 
         function setZoneRating(zoneIndex, rating) {
+            syncInputsToUserInfo();
             ratings[zoneIndex] = rating;
             localStorage.setItem('ratings', JSON.stringify(ratings));
             renderRatings();
         }
 
         function setOverallRating(rating) {
+            syncInputsToUserInfo();
             overallRating = rating;
             localStorage.setItem('overall_rating', JSON.stringify(overallRating));
             renderRatings();
@@ -353,8 +372,8 @@
             const reason = document.getElementById('user-reason').value.trim();
             const suggestions = document.getElementById('user-suggestions').value.trim();
 
-            if (!name || !address || !visits || !reason) {
-                alert('กรุณากรอกข้อมูลที่มีเครื่องหมาย (*) ให้ครบถ้วน');
+            // ตรวจสอบเฉพาะ 3 ช่องบังคับ: ชื่อ, จำนวนครั้งที่มา, เหตุผลที่มา (ถ้าไม่ครบจะไม่ทำงานต่อ ไม่เด้ง alert)
+            if (!name || !visits || !reason) {
                 return;
             }
 
