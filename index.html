@@ -112,7 +112,13 @@
 
                 <div>
                     <label class="text-xs font-bold text-gray-600 block mb-1">4. เหตุผลที่มาพิพิธภัณฑ์การเกษตรฯ *</label>
-                    <input type="text" id="user-reason" class="w-full border-2 border-pink-100 rounded-xl p-2.5 text-sm focus:border-pink-400 outline-none" placeholder="เช่น ท่องเที่ยวพักผ่อน, พาลูกมาเรียนรู้">
+                    <select id="user-reason" class="w-full border-2 border-pink-100 rounded-xl p-2.5 text-sm focus:border-pink-400 outline-none bg-white">
+                        <option value="">-- เลือกเหตุผลที่มา --</option>
+                        <option value="มาสะสมตราประทับ">1. มาสะสมตราประทับ</option>
+                        <option value="พาครอบครัวมาประจำ">2. พาครอบครัวมาประจำ</option>
+                        <option value="ท่องเที่ยว/หาความรู้">3. ท่องเที่ยว/หาความรู้</option>
+                        <option value="อื่นๆ">4. อื่นๆ</option>
+                    </select>
                 </div>
 
                 <div>
@@ -237,7 +243,7 @@
             const redeemBtn = document.getElementById('redeem-btn');
 
             if (redeemedTier === 9) {
-                statusText.innerText = "🔒 แลกครบทุกรางวัลแล้ว";
+                statusText.innerText = "🔒 แแลกครบทุกรางวัลแล้ว";
                 statusText.className = "text-xs font-bold text-gray-400";
                 redeemBtn.innerText = "🔒 รับของรางวัลครบแล้วประจำวันนี้";
                 redeemBtn.className = "w-full bg-gray-400 text-white py-3.5 rounded-2xl text-lg font-bold shadow-lg cursor-not-allowed";
@@ -272,7 +278,6 @@
             }
         }
 
-        // ดึงข้อมูลจากช่อง Input ปัจจุบันไว้ เพื่อป้องกันข้อมูลหายเมื่อเกิดการ Render ใหม่
         function syncInputsToUserInfo() {
             const nameEl = document.getElementById('user-name');
             const addressEl = document.getElementById('user-address');
@@ -369,10 +374,9 @@
             const name = document.getElementById('user-name').value.trim();
             const address = document.getElementById('user-address').value.trim();
             const visits = document.getElementById('user-visits').value;
-            const reason = document.getElementById('user-reason').value.trim();
+            const reason = document.getElementById('user-reason').value;
             const suggestions = document.getElementById('user-suggestions').value.trim();
 
-            // ตรวจสอบเฉพาะ 3 ช่องบังคับ: ชื่อ, จำนวนครั้งที่มา, เหตุผลที่มา (ถ้าไม่ครบจะไม่ทำงานต่อ ไม่เด้ง alert)
             if (!name || !visits || !reason) {
                 return;
             }
@@ -435,7 +439,6 @@
                     redeemedTier = 6;
                 }
 
-                // ส่งข้อมูลทั้งหมดเข้า Google Sheets เพื่อตัดสต๊อก
                 const payload = {
                     name: userInfo.name,
                     address: userInfo.address,
